@@ -1,0 +1,41 @@
+{
+  "name": "task_management_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "start": "ts-node app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-validator": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
+    "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^6.4.16",
+    "@types/sequelize": "^4.28.20",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.2"
+  }
+}
