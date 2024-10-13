@@ -1,5 +1,5 @@
 import { BOOLEAN, DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config";
+import { sequelize } from "../config/config";
 
 interface UserProfileAttributes {
     id: string;

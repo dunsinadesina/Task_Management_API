@@ -3,8 +3,12 @@ import crypto from 'crypto';
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { PasswordResetToken } from '../models/resetPassword';
+import Task from '../models/taskModel';
 import User from "../models/userModel";
 import UserProfile from '../models/userProfileModel';
+import { sendPasswordResetMail, sendVerificationMail } from '../nodemailer';
 
 //register new user
 export const userRegistration = [
@@ -58,7 +62,8 @@ export const userRegistration = [
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
-            res.status(201).json({message: 'User successfully added and User Profile successfully created', token})
+            sendVerificationMail(user.email, user.emailToken);
+            res.status(201).json({ message: 'User successfully added and User Profile successfully created', token })
 
         } catch (error) {
             console.error(error);
@@ -66,6 +71,15 @@ export const userRegistration = [
         }
     }
 ];
+
+//logging in with google
+export const userLoginWithGoogle =async (req:Request, res:Response) => {
+    account.createOAuth2Session(
+        'google',
+        'https://task-management-api-2.onrender.com',
+        'https://task-management-api-2.onrender.com/fail'
+    )
+}
 
 //Login user
 export const userLogin = [
@@ -111,6 +125,62 @@ export const userLogin = [
     }
 ];
 
+export const verifyEmail = async (req: Request, res: Response) => {
+    try {
+        const { emailToken } = req.body;
+        if (!emailToken) {
+            return res.status(400).json({ message: 'Email token not found...' });
+        }
+        const user = await User.findOne({ where: { emailToken } });
+        if (user) {
+            user.emailToken = 'null';
+            user.isVerified = true;
+            await user.save();
+            const secretKey = process.env.JWT_SECRET;
+            const createToken = (userId: string) => {
+                return jwt.sign({ userId }, secretKey as string, { expiresIn: '1h' });
+            };
+            const token = createToken(user.id);
+            res.status(200).json({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                token,
+                isVerified: user.isVerified,
+            });
+        } else {
+            res.status(404).json({ message: 'Email Verification failed, invalid token' })
+        }
+    } catch (error) {
+        console.log("Error in email verification: ", error)
+        res.status(500).json({ message: 'Server Error!', error })
+    }
+}
+
+const generateToken = () => {
+    return uuidv4();
+}
+export const forgotPassword = async (req: Request, res: Response) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ where: { email } });
+        if (user) {
+            const token = generateToken();
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 1);
+            await PasswordResetToken.create({ userId: user.id, token, expiryDate });
+            //send the email with the link containing the token
+            await sendPasswordResetMail(email, token);
+            return res.status(200).json({ message: 'Password reset link has been sent to your email' });
+        } else {
+            return res.status(403).json({ message: 'Email does not exist. Do you want to create an account?' });
+        }
+    } catch (error) {
+        console.log('Error: ', error);
+        return res.status(500).json({ message: 'Server Error' });
+    }
+}
+
 export const userLogout = async (req: Request, res: Response) => {
     const { email } = req.body;
     try {
@@ -118,6 +188,7 @@ export const userLogout = async (req: Request, res: Response) => {
         const userProfile = await UserProfile.findOne({ where: { email } });
         if (userProfile) {
             await userProfile.update({ isLoggedIn: false });
+            res.redirect(`${process.env.FRONTEND_URL}/homepage`);
             return res.status(200).json({ message: 'Logout successful' });
         } else {
             return res.status(404).json({ error: 'User not found' });
@@ -177,3 +248,26 @@ export const getAllUsers = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error' })
     }
 }
+
+export const deleteAccount = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+
+    try {
+        // Find the user by primary key
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Delete associated tasks (assuming tasks have a userId field)
+        await Task.destroy({ where: { userId } });
+
+        // Delete the user
+        await User.destroy({ where: { id: userId } });
+
+        return res.status(200).json({ message: 'Account and associated tasks deleted successfully' });
+    } catch (err) {
+        console.error("Error deleting account", err);
+        return res.status(500).json({ message: 'Failed to delete account' });
+    }
+};

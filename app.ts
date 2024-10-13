@@ -1,31 +1,75 @@
-import bodyParser from 'body-parser';
 import cors from 'cors';
-import express, { Request, Response } from 'express';
-import { connectDB } from './config';
+import express, { NextFunction, Request, Response } from 'express';
+import session from 'express-session';
+import passport from 'passport';
+import { connectDB } from './config/config';
 import router from './routes';
 
 const app = express();
 
+// Custom type definition for req.user
+declare global {
+    namespace Express {
+        interface User {
+            name: string;
+            email: string;
+        }
+    }
+}
+
+export function isLoggedIn(req: Request, res: Response, next: NextFunction) {
+    req.user ? next() : res.sendStatus(401);
+}
+
+app.use(session({ secret: 'maybe_token', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/', (req: Request, res: Response) => {
+    res.send('<a href="/auth/google">Login with Google</a>');
+});
+
+app.get('/auth/google',
+    passport.authenticate('google', { scope: ['email', 'profile'] })
+);
+
+app.get('/auth/google/callback',
+    passport.authenticate('google', {
+        successRedirect: '/protected',
+        failureRedirect: '/auth/google/failure'
+    })
+);
+
+app.get('/protected', isLoggedIn, (req: Request, res: Response) => {
+    res.send(`Hello ${req.user?.name}`);
+});
+
+app.get('/auth/google/failure', (req: Request, res: Response) => {
+    res.send('Failed to authenticate..');
+});
+
+app.use(express.static('public'));
+app.set('view engine', 'ejs');
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(router);
 
 connectDB();
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Welcome to Task Management API')
-})
+app.get('/welcome', (req: Request, res: Response) => {
+    res.send('Welcome to Task Management API');
+});
 
-//for the middleware
-app.use((err: any, req: Request, res: Response, next: any) => {
+// Error handling middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
-    res.status(500).send("There's something wrong...")
-})
+    res.status(500).send("There's something wrong...");
+});
 
-//start the server
+// Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-})
+});
