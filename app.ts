@@ -5,6 +5,8 @@ import passport from 'passport';
 import { connectDB } from './config/config';
 import router from './routes';
 
+const sequelize = connectDB();
+
 const app = express();
 
 // Custom type definition for req.user
@@ -15,10 +17,6 @@ declare global {
             email: string;
         }
     }
-}
-
-export function isLoggedIn(req: Request, res: Response, next: NextFunction) {
-    req.user ? next() : res.sendStatus(401);
 }
 
 app.use(session({ secret: 'maybe_token', resave: false, saveUninitialized: true }));
@@ -40,7 +38,7 @@ app.get('/auth/google/callback',
     })
 );
 
-app.get('/protected', isLoggedIn, (req: Request, res: Response) => {
+app.get('/protected', (req: Request, res: Response) => {
     res.send(`Hello ${req.user?.name}`);
 });
 
@@ -56,8 +54,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(router);
 
-connectDB();
-
 app.get('/welcome', (req: Request, res: Response) => {
     res.send('Welcome to Task Management API');
 });
@@ -70,6 +66,11 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 // Start the server
 const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+async function startServer() {
+    const sequelize = await connectDB();
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+startServer();

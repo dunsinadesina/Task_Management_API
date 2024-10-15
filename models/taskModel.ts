@@ -1,4 +1,3 @@
-import { UUID } from 'crypto';
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../config/config';
 import User from './userModel';
@@ -9,7 +8,7 @@ interface TaskAttributes {
     description: string;
     dueDate: Date,
     completed: boolean,
-    userId: UUID,
+    userId: string,
     priority: 'low' | 'medium' | 'on-hold',
     status: 'pending' | 'in-progress' | 'completed' | 'on_hold'
 }
@@ -22,7 +21,7 @@ class Task extends Model<TaskAttributes, TaskCreationAttributes> implements Task
     public description!: string;
     public dueDate!: Date;
     public completed!: boolean;
-    public userId!: UUID;
+    public userId!: string;
     public priority!: 'low' | 'medium' | 'on-hold';
     public status!: 'completed' | 'pending' | 'in-progress' | 'on_hold';
     public readonly createdAt!: Date;

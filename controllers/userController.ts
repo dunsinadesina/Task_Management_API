@@ -73,13 +73,13 @@ export const userRegistration = [
 ];
 
 //logging in with google
-export const userLoginWithGoogle =async (req:Request, res:Response) => {
-    account.createOAuth2Session(
-        'google',
-        'https://task-management-api-2.onrender.com',
-        'https://task-management-api-2.onrender.com/fail'
-    )
-}
+// export const userLoginWithGoogle =async (req:Request, res:Response) => {
+//     account.createOAuth2Session(
+//         'google',
+//         'https://task-management-api-2.onrender.com',
+//         'https://task-management-api-2.onrender.com/fail'
+//     )
+// }
 
 //Login user
 export const userLogin = [
@@ -180,6 +180,35 @@ export const forgotPassword = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Server Error' });
     }
 }
+
+export const resetPassword = async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body;
+
+    try {
+        const resetToken = await PasswordResetToken.findOne({ where: { token } });
+        
+        if (!resetToken || resetToken.expiryDate < new Date()) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        const user = await User.findByPk(resetToken.userId);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        await resetToken.destroy();
+
+        return res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: 'Server Error' });
+    }
+};
+
 
 export const userLogout = async (req: Request, res: Response) => {
     const { email } = req.body;

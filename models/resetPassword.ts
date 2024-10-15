@@ -1,11 +1,30 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../config/config';
 import User from './userModel';
 
-const PasswordResetToken = sequelize.define('PasswordResetToken', {
+interface PasswordResetTokenAttributes {
+    id: string,
+    userId: string,
+    token: string,
+    expiryDate: Date
+}
+
+interface PasswordResetTokenCreationAttributes extends Optional<PasswordResetTokenAttributes, 'id'> { }
+
+class PasswordResetToken extends Model<PasswordResetTokenAttributes, PasswordResetTokenCreationAttributes> implements PasswordResetTokenAttributes {
+    public id!: string;
+    public userId!: string;
+    public token!: string;
+    public expiryDate!: Date;
+}
+
+PasswordResetToken.init({
+    id: {
+        type: DataTypes.UUID,
+        allowNull: false
+    },
     userId: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
         allowNull: false,
         references: {
             model: User,
@@ -20,5 +39,10 @@ const PasswordResetToken = sequelize.define('PasswordResetToken', {
         type: DataTypes.DATE,
         allowNull: false
     }
-});
+}, {
+    sequelize,
+    modelName: 'PasswordResetToken',
+})
+
 export { PasswordResetToken };
+
