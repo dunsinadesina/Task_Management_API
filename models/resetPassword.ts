@@ -21,6 +21,7 @@ class PasswordResetToken extends Model<PasswordResetTokenAttributes, PasswordRes
 PasswordResetToken.init({
     id: {
         type: DataTypes.UUID,
+        primaryKey: true,
         allowNull: false
     },
     userId: {

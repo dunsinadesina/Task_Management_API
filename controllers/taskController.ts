@@ -32,12 +32,12 @@ export const createTask = async (req: Request, res: Response) => {
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const {userId} = req.params;
+        const { userId } = req.params;
         const tasks = await Task.findAll({
-            where: {userId}
+            where: { userId }
         });
-        if (!tasks.length){
-            return res.status(404).json({message: 'No tasks found for this user'})
+        if (!tasks.length) {
+            return res.status(404).json({ message: 'No tasks found for this user' })
         }
         return res.status(200).json(tasks);
     } catch (error) {
@@ -47,9 +47,9 @@ export const getAllTasks = async (req: Request, res: Response) => {
 
 export const getTaskById = async (req: Request, res: Response) => {
     try {
-        const {userId, taskId} = req.params;
+        const { userId, taskId } = req.params;
         const task = await Task.findOne({
-            where:{
+            where: {
                 id: taskId,
                 userId
             }
@@ -65,10 +65,10 @@ export const getTaskById = async (req: Request, res: Response) => {
 
 export const updateTask = async (req: Request, res: Response) => {
     try {
-        const {userId, taskId} = req.params;
+        const { userId, taskId } = req.params;
         const { title, description, dueDate, completed = false, priority = 'medium', status = 'pending' } = req.body;
         const task = await Task.findOne({
-            where:{
+            where: {
                 id: taskId,
                 userId
             }
@@ -94,9 +94,9 @@ export const updateTask = async (req: Request, res: Response) => {
 
 export const deleteTask = async (req: Request, res: Response) => {
     try {
-        const {userId, taskId} = req.params;
+        const { userId, taskId } = req.params;
         const task = await Task.findOne({
-            where:{
+            where: {
                 id: taskId,
                 userId
             }
@@ -106,7 +106,7 @@ export const deleteTask = async (req: Request, res: Response) => {
         }
 
         await task.destroy();
-        return res.status(200).json({message: 'Task successfully deleted'});
+        return res.status(200).json({ message: 'Task successfully deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Error in deleting task: ', error });
     }
