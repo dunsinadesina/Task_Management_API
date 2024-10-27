@@ -9,7 +9,7 @@ import { PasswordResetToken } from '../models/resetPassword';
 import Task from '../models/taskModel';
 import User from "../models/userModel";
 import UserProfile from '../models/userProfileModel';
-import { sendPasswordResetMail, sendVerificationMail } from '../nodemailer';
+import { sendVerificationMail } from '../nodemailer';
 
 //register new user
 export const userRegistration = [
@@ -67,18 +67,13 @@ export const userRegistration = [
             console.log("JWT token generated:", token);
 
             // Send verification email only if email and emailToken are valid
-            if (user.email && user.emailToken) {
                 try {
-                    await sendVerificationMail(user.email, user.emailToken);
+                    await sendVerificationMail(user.email, user.emailToken, user.name);
                     console.log("Verification email sent to:", user.email);
                 } catch (emailError) {
                     console.error("Error sending verification email:", emailError);
                     return res.status(500).json({ message: 'Error sending verification email' });
                 }
-            } else {
-                console.error("Email or emailToken is missing, cannot send verification email.");
-                return res.status(500).json({ message: 'Error with email data' });
-            }
 
             return res.status(201).json({
                 message: 'User successfully added and User Profile successfully created',
@@ -230,7 +225,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             expiryDate.setDate(expiryDate.getDate() + 1);
             await PasswordResetToken.create({ userId: user.id, token, expiryDate });
             //send the email with the link containing the token
-            await sendPasswordResetMail(email, token);
+           // await sendPasswordResetMail(user);
             return res.status(200).json({ message: 'Password reset link has been sent to your email' });
         } else {
             return res.status(403).json({ message: 'Email does not exist. Do you want to create an account?' });
