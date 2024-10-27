@@ -33,7 +33,7 @@ export const sendVerificationMail = async (email: string, displayName: string) =
     try {
         // Generate email verification link
         const actionCodeSettings = {
-            url: `${process.env.FRONTEND_URL}/verify-email`,
+            url: 'https://taskify-lac-beta.vercel.app/verify-email',
             handleCodeInApp: true,
         };
 
