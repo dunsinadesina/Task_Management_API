@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from './controllers/taskController';
-import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile, resetPassword, userLogin, userLogout, userRegistration, verifyEmail } from './controllers/userController';
+import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile, googleSignIn, resetPassword, userLogin, userLogout, userRegistration, verifyEmail } from './controllers/userController';
+
 const router = Router();
 
 router.post('/register', userRegistration);
@@ -18,5 +19,6 @@ router.post('/users/:userId/tasks', createTask);
 router.get('/users/:userId/tasks/:id', getTaskById);
 router.put('/users/:userId/tasks/:id', updateTask);
 router.delete('/users/:userId/tasks/:id', deleteTask);
+router.post('/google-sign-in', googleSignIn);
 
 export default router;

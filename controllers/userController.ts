@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+import { adminAuth } from '../firebase';
 import { PasswordResetToken } from '../models/resetPassword';
 import Task from '../models/taskModel';
 import User from "../models/userModel";
@@ -125,6 +126,53 @@ export const userLogin = [
     }
 ];
 
+export const googleSignIn = async (req: Request, res: Response) => {
+    const { idToken } = req.body;
+
+    try {
+        // Verify the ID token using Firebase Admin
+        const decodedToken = await adminAuth.verifyIdToken(idToken);
+        const uid = decodedToken.uid;
+
+        // Ensure email is defined
+        const email: string = decodedToken.email ?? (() => { throw new Error("Missing email in decoded token") })();
+        const name: string = decodedToken.name || "Google User";
+
+        // Check if user already exists in the database
+        let user = await User.findOne({ where: { email } });
+        if (user) {
+            return res.status(400).json({ message: 'User already has an account' });
+        }
+
+        // Hash a random password since Google sign-in doesn't require one
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), salt);
+
+        // Create a new user in the database
+        user = await User.create({
+            name,
+            email,
+            password: hashedPassword, // Placeholder password
+            emailToken: crypto.randomBytes(64).toString('hex'),
+            isVerified: true
+        });
+
+        // Create user profile
+        await UserProfile.create({
+            name,
+            email,
+            userid: user.id,
+            isLoggedIn: true
+        });
+
+        return res.status(201).json({ message: 'User created successfully via Google sign-in', user });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+};
+
 export const verifyEmail = async (req: Request, res: Response) => {
     try {
         const { emailToken } = req.body;
@@ -186,13 +234,13 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     try {
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
-        
+
         if (!resetToken || resetToken.expiryDate < new Date()) {
             return res.status(400).json({ message: 'Invalid or expired token' });
         }
 
         const user = await User.findByPk(resetToken.userId);
-        
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

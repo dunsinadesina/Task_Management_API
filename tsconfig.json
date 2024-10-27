@@ -9,6 +9,6 @@
       "outDir": "./dist",
       "sourceMap": true
     },
-    "include": ["**/*.ts"],
+    "include": ["**/*.ts", "firebase.js"],
     "exclude": ["node_modules"]
 }
