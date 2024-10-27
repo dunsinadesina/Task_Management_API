@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from './controllers/taskController';
-import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile, googleSignIn, resetPassword, userLogin, userLogout, userRegistration, verifyEmail } from './controllers/userController';
+import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile, googleSignIn, resetPassword, userLogin, userLogout, userRegistration, verifyEmailAddress } from './controllers/userController';
 
 const router = Router();
 
 router.post('/register', userRegistration);
 router.get('/login', userLogin);
-router.post('/verify-email', verifyEmail);
+router.get('/verify-email/:emailToken', verifyEmailAddress);
 router.get('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.delete('/logout', userLogout);

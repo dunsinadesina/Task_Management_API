@@ -66,19 +66,22 @@ export const userRegistration = [
 
             console.log("JWT token generated:", token);
 
-            // Send verification email only if email and emailToken are valid
+            // Send verification email
                 try {
-                    await sendVerificationMail(user.email, user.emailToken, user.name);
+                    sendVerificationMail(user.email, user.emailToken, user.name);
                     console.log("Verification email sent to:", user.email);
+                    return res.status(200).json({
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        token,
+                        isVerified: user.isVerified,
+                        message: 'User successfully added and verification email sent'
+                    });
                 } catch (emailError) {
                     console.error("Error sending verification email:", emailError);
                     return res.status(500).json({ message: 'Error sending verification email' });
                 }
-
-            return res.status(201).json({
-                message: 'User successfully added and User Profile successfully created',
-                token
-            });
 
         } catch (error) {
             console.error("Server error:", error);
@@ -87,6 +90,28 @@ export const userRegistration = [
     }
 ];
 
+export const verifyEmailAddress = async (req: Request, res: Response) => {
+    const { token } = req.params;
+
+    try {
+        // Find the user by emailToken
+        const user = await User.findOne({ where: { emailToken: token } });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid or expired token' });
+        }
+
+        // Update the user's isVerified status
+        user.isVerified = true;
+        user.emailToken = ''; // Clear the token after verification
+        await user.save();
+
+        res.status(200).json({ message: 'Email successfully verified!' });
+    } catch (error) {
+        console.error("Verification error:", error);
+        res.status(500).json({ message: 'Server error during verification' });
+    }
+};
 
 //logging in with google
 // export const userLoginWithGoogle =async (req:Request, res:Response) => {
@@ -180,37 +205,6 @@ export const googleSignIn = async (req: Request, res: Response) => {
     }
 };
 
-export const verifyEmail = async (req: Request, res: Response) => {
-    try {
-        const { emailToken } = req.body;
-        if (!emailToken) {
-            return res.status(400).json({ message: 'Email token not found...' });
-        }
-        const user = await User.findOne({ where: { emailToken } });
-        if (user) {
-            user.emailToken = 'null';
-            user.isVerified = true;
-            await user.save();
-            const secretKey = process.env.JWT_SECRET;
-            const createToken = (userId: string) => {
-                return jwt.sign({ userId }, secretKey as string, { expiresIn: '1h' });
-            };
-            const token = createToken(user.id);
-            res.status(200).json({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                token,
-                isVerified: user.isVerified,
-            });
-        } else {
-            res.status(404).json({ message: 'Email Verification failed, invalid token' })
-        }
-    } catch (error) {
-        console.log("Error in email verification: ", error)
-        res.status(500).json({ message: 'Server Error!', error })
-    }
-}
 
 const generateToken = () => {
     return uuidv4();
