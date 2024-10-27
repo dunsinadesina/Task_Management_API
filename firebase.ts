@@ -5,7 +5,6 @@ import { getAuth as getClientAuth } from "firebase/auth"; // For client-side aut
 
 dotenv.config();
 
-
 // Initialize Firebase Admin SDK (for server-side)
 admin.initializeApp({
   credential: admin.credential.cert({
