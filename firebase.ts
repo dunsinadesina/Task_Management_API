@@ -5,29 +5,39 @@ import { getAuth as getClientAuth } from "firebase/auth"; // For client-side aut
 
 dotenv.config();
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}') as {
+// Ensure the FIREBASE_SERVICE_ACCOUNT variable is defined
+if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+  throw new Error("FIREBASE_SERVICE_ACCOUNT environment variable is not set.");
+}
+
+// Parse the service account JSON from environment variable
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as {
   projectId: string;
   clientEmail: string;
   privateKey: string;
 };
+
+// Log the parsed service account for debugging
 console.log("Parsed Service Account:", serviceAccount);
-const projectId = serviceAccount.projectId || "default-project-id"; 
+
+// Check if projectId is present
 if (!serviceAccount.projectId) {
-    throw new Error("Missing project_id in service account credentials");
+  throw new Error("Missing project_id in service account credentials");
 }
 
-// Check if all required variables are defined
-if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
+// Check if all required Firebase environment variables are defined
+if (!process.env.FIREBASE_PROJECT_ID ||
+  !process.env.FIREBASE_CLIENT_EMAIL ||
+  !process.env.FIREBASE_PRIVATE_KEY) {
   throw new Error("Missing required Firebase environment variables");
 }
-
 
 // Initialize Firebase Admin SDK (for server-side)
 admin.initializeApp({
   credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    projectId: serviceAccount.projectId,
+    clientEmail: serviceAccount.clientEmail,
+    privateKey: serviceAccount.privateKey.replace(/\\n/g, '\n'),
   }),
 });
 
@@ -41,4 +51,4 @@ if (!getApps().length) {
 }
 
 export const auth = getClientAuth();
-export const adminAuth = admin.auth(); 
+export const adminAuth = admin.auth();
