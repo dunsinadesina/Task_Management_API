@@ -7,8 +7,8 @@ const createMailTransporter = () => {
         port: 587,
         service: 'gmail',
         auth: {
-            user: 'taskifyappteam@gmail.com',
-            pass: 'feol xftb migy zavw', //app password
+            user: process.env.EMAIL,
+            pass: process.env.EMAIL_PASSWORD, //app password
         },
     });
     return transporter;
