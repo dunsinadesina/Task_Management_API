@@ -19,7 +19,7 @@ export const sendVerificationMail = (email: string, emailToken: string, name:str
     const mailOptions = {
         from: {
             name: 'Taskify',
-            address: process.env.EMAIL
+            address: process.env.EMAIL!
         },
         to: email,
         subject: "Verify your email for Taskify",
