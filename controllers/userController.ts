@@ -64,7 +64,8 @@ export const userRegistration = [
                 expiresIn: '1h'
             });
             sendVerificationMail(user.email, user.emailToken);
-            res.status(201).json({ message: 'User successfully added and User Profile successfully created', token })
+            console.log(token);
+            return res.status(201).json({ message: 'User successfully added and User Profile successfully created', token })
 
         } catch (error) {
             console.error(error);
