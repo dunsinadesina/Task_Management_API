@@ -29,11 +29,11 @@ export const sendTaskNotification = (email: string, taskTitle: string) => {
     });
 };
 
-export const sendVerificationMail = async (email: string, displayName: string) => {
+export const sendVerificationMail = async (email: string, emailToken: string) => {
     try {
         // Generate email verification link
         const actionCodeSettings = {
-            url: 'https://taskify-lac-beta.vercel.app/verify-email',
+            url: `${process.env.FRONTEND_URL}/verify-email?token=${emailToken}`,
             handleCodeInApp: true,
         };
 
@@ -43,7 +43,7 @@ export const sendVerificationMail = async (email: string, displayName: string) =
             from: process.env.EMAIL,
             to: email,
             subject: 'Verify your email for Taskify',
-            html: `<p>Hello ${displayName},</p>
+            html: `<p>Hello,</p>
                    <p>Follow this link to verify your email address:</p>
                    <p><a href="${emailVerificationLink}">Verify your email</a></p>
                    <p>If you didn’t ask to verify this address, you can ignore this email.</p>

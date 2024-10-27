@@ -13,7 +13,7 @@ import { sendPasswordResetMail, sendVerificationMail } from '../nodemailer';
 
 //register new user
 export const userRegistration = [
-    //validation middleware
+    // Validation middleware
     check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
     check('password', 'Password must contain at least 6 characters').isLength({ min: 6 }),
@@ -27,17 +27,17 @@ export const userRegistration = [
         const { name, email, password } = req.body;
 
         try {
-            //to check if user already exists
+            // Check if user already exists in the database
             let user = await User.findOne({ where: { email } });
             if (user) {
                 return res.status(400).json({ message: 'User already has an account' });
             }
 
-            //to hash the password
+            // Hash the password
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            //creating the user
+            // Create the user in the database
             user = await User.create({
                 name,
                 email,
@@ -54,7 +54,7 @@ export const userRegistration = [
                 isLoggedIn: false
             });
 
-            //to generate jwt token
+            // Generate JWT token
             const payload = {
                 user: {
                     id: user.id
@@ -63,16 +63,35 @@ export const userRegistration = [
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
-            sendVerificationMail(user.email, user.emailToken);
-            console.log(token);
-            return res.status(201).json({ message: 'User successfully added and User Profile successfully created', token })
+
+            console.log("JWT token generated:", token);
+
+            // Send verification email only if email and emailToken are valid
+            if (user.email && user.emailToken) {
+                try {
+                    await sendVerificationMail(user.email, user.emailToken);
+                    console.log("Verification email sent to:", user.email);
+                } catch (emailError) {
+                    console.error("Error sending verification email:", emailError);
+                    return res.status(500).json({ message: 'Error sending verification email' });
+                }
+            } else {
+                console.error("Email or emailToken is missing, cannot send verification email.");
+                return res.status(500).json({ message: 'Error with email data' });
+            }
+
+            return res.status(201).json({
+                message: 'User successfully added and User Profile successfully created',
+                token
+            });
 
         } catch (error) {
-            console.error(error);
+            console.error("Server error:", error);
             res.status(500).json({ message: 'Server error' });
         }
     }
 ];
+
 
 //logging in with google
 // export const userLoginWithGoogle =async (req:Request, res:Response) => {
