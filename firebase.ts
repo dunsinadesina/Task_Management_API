@@ -12,16 +12,16 @@ if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
 
 // Parse the service account JSON from environment variable
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as {
-  projectId: string;
-  clientEmail: string;
-  privateKey: string;
+  project_id: string;
+  client_email: string;
+  private_key: string;
 };
 
 // Log the parsed service account for debugging
 console.log("Parsed Service Account:", serviceAccount);
 
 // Check if projectId is present
-if (!serviceAccount.projectId) {
+if (!serviceAccount.project_id) {
   throw new Error("Missing project_id in service account credentials");
 }
 
@@ -35,9 +35,9 @@ if (!process.env.FIREBASE_PROJECT_ID ||
 // Initialize Firebase Admin SDK (for server-side)
 admin.initializeApp({
   credential: admin.credential.cert({
-    projectId: serviceAccount.projectId,
-    clientEmail: serviceAccount.clientEmail,
-    privateKey: serviceAccount.privateKey.replace(/\\n/g, '\n'),
+    projectId: serviceAccount.project_id,
+    clientEmail: serviceAccount.client_email,
+    privateKey: serviceAccount.private_key.replace(/\\n/g, '\n'),
   }),
 });
 
