@@ -5,7 +5,7 @@ import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile
 const router = Router();
 
 router.post('/register', userRegistration);
-router.get('/login', userLogin);
+router.post('/login', userLogin);
 router.get('/verify-email/:emailToken', verifyEmailAddress);
 router.get('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
