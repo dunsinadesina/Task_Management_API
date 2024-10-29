@@ -134,6 +134,11 @@ export const userLogin = [
                 return res.status(401).json({ message: 'Invalid email' });
             }
 
+             // Check if user's email is verified
+            if (!user.isVerified) {
+                return res.status(403).json({ message: 'Please verify your email to login' });
+            }
+
             // Check if password is correct
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) {
@@ -149,10 +154,12 @@ export const userLogin = [
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
-
-            res.json({ token });
+            return res.json({ 
+                message: 'Login successful',
+                token 
+            });
         } catch (error) {
-            console.error(error);
+            console.error("Login error:",error);
             res.status(500).json({ message: 'Server error' });
         }
     }
