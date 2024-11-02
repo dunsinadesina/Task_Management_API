@@ -25,7 +25,7 @@ export const sendVerificationMail = (email: string, emailToken: string, name:str
         subject: "Verify your email for Taskify",
         html: `<p>Hello 👋 ${name},</p>
         <p>Click on the link below to verify your email address for Taskify.</p>
-    <a href='https://taskify-lac-beta.vercel.app/verify-email?emailToken=${emailToken}'>Verify Your Email</a>,
+    <a href='https://taskify-lac-beta.vercel.app/verify-email/${emailToken}'>Verify Your Email</a>,
     <p>If you didn’t ask to verify this address, you can ignore this email.</p>
     <p>Thanks,</p>
     <p>Taskify Team</p>`,
