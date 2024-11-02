@@ -1,4 +1,4 @@
-import cors from 'cors';
+//import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import session from 'express-session';
 import passport from 'passport';
@@ -48,11 +48,11 @@ app.get('/auth/google/failure', (req: Request, res: Response) => {
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-app.use(cors({
-    origin: 'https://taskify-lac-beta.vercel.app/',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-}));
+// app.use(cors({
+//     origin: 'https://taskify-lac-beta.vercel.app/',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     credentials: true,
+// }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
