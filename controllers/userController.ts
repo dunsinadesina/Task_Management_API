@@ -105,6 +105,7 @@ export const verifyEmailAddress = async (req: Request, res: Response) => {
         user.isVerified = true;
         user.emailToken = ''; // Clear the token after verification
         await user.save();
+        console.log("User verified status updated to:", user.isVerified);
 
         res.status(200).json({ message: 'Email successfully verified!' });
     } catch (error) {
