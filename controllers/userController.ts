@@ -91,11 +91,11 @@ export const userRegistration = [
 ];
 
 export const verifyEmailAddress = async (req: Request, res: Response) => {
-    const { token } = req.params;
+    const { emailToken } = req.params;
 
     try {
         // Find the user by emailToken
-        const user = await User.findOne({ where: { emailToken: token } });
+        const user = await User.findOne({ where: { emailToken: emailToken } });
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid or expired token' });
