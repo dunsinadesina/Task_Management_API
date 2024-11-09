@@ -248,7 +248,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 export const resetPassword = async (req: Request, res: Response) => {
     const { newPassword } = req.body;
-    const token = String(req.query.token)
+    const token = req.params;
 
     console.log('Received reset token:', token);
 
