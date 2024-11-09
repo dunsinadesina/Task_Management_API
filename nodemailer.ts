@@ -41,7 +41,7 @@ export const sendVerificationMail = (email: string, emailToken: string, name:str
     });
 };
 
-export const sendPasswordResetMail = (email: string, token: string)=>{
+export const sendPasswordResetMail = async (email: string, passwordResetToken: string, name: string) => {
     const transporter = createMailTransporter();
 
     const mailOptions ={
@@ -51,9 +51,9 @@ export const sendPasswordResetMail = (email: string, token: string)=>{
         },
         to: email,
         subject: "Reset your password for Taskify",
-        html: `<p>Hello 👋,</p>
+        html: `<p>Hello ${name} 👋,</p>
         </p>Click on the link below to reset your password for Taskify:</p>
-        <a href=https://taskify-lac-beta.vercel.app/reset-password?token=${token}'>Reset Your Password</a>,
+        <a href=https://taskify-lac-beta.vercel.app/reset-password?token=${passwordResetToken}'>Reset Your Password</a>,
         <p>If you didn't ask to reset your password, you can ignore this email.</p>
         <p>Thanks,</p>
         <p>Taskify Team</p>`

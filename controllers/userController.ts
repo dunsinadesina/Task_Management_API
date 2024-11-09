@@ -225,18 +225,26 @@ export const forgotPassword = async (req: Request, res: Response) => {
             const token = generateToken();
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
+            
             await PasswordResetToken.create({ userId: user.id, token, expiryDate });
-            //send the email with the link containing the token
-            sendPasswordResetMail(email, token);
-            return res.status(200).json({ message: 'Password reset link has been sent to your email' });
+            
+            try {
+                // Send the email with the link containing the token
+                await sendPasswordResetMail(email, token, user.name);
+                return res.status(200).json({ message: 'Password reset link has been sent to your email' });
+            } catch (emailError) {
+                console.error('Error sending password reset email:', emailError);
+                return res.status(500).json({ message: 'Error sending email. Please try again later.' });
+            }
         } else {
             return res.status(403).json({ message: 'Email does not exist. Do you want to create an account?' });
         }
     } catch (error) {
-        console.log('Error: ', error);
+        console.error('Error in forgotPassword function:', error);
         return res.status(500).json({ message: 'Server Error' });
     }
-}
+};
+
 
 export const resetPassword = async (req: Request, res: Response) => {
     const { token, newPassword } = req.body;
