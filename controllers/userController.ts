@@ -247,7 +247,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 
 export const resetPassword = async (req: Request, res: Response) => {
-    const { token, newPassword } = req.body;
+    const {newPassword } = req.body;
+    const {token} = req.params;
 
     try {
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
