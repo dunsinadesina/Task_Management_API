@@ -53,7 +53,7 @@ export const sendPasswordResetMail = (email: string, token: string)=>{
         subject: "Reset your password for Taskify",
         html: `<p>Hello 👋,</p>
         </p>Click on the link below to reset your password for Taskify:</p>
-        <a href=https://taskify-lac-beta.vercel.app/reset-password?token=${token}'>Reset Your Password</a>,
+        <a href=https://taskify-lac-beta.vercel.app/forgot-password?token=${token}'>Reset Your Password</a>,
         <p>If you didn't ask to reset your password, you can ignore this email.</p>
         <p>Thanks,</p>
         <p>Taskify Team</p>`
