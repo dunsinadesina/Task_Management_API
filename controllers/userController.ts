@@ -250,16 +250,25 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { newPassword } = req.body;
     const { token } = req.params;
 
+    console.log('Received reset token:', token);
+
+    if (!token) {
+        return res.status(400).json({ message: 'Token is required' });
+    }
+
     try {
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
+        console.log('Found reset token:', resetToken);
 
         if (!resetToken || resetToken.expiryDate < new Date()) {
+            console.log('Invalid or expired token:', resetToken);
             return res.status(400).json({ message: 'Invalid or expired token' });
         }
 
         const user = await User.findByPk(resetToken.userId);
 
         if (!user) {
+            console.log('User not found for token:', resetToken.userId); 
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -267,10 +276,11 @@ export const resetPassword = async (req: Request, res: Response) => {
         await user.save();
 
         await resetToken.destroy();
-
+        
+        console.log('Password reset successful for user:', user.id);
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error during password reset:', error);
         return res.status(500).json({ message: 'Server Error' });
     }
 };
