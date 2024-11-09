@@ -28,7 +28,7 @@ UserProfile.init({
         primaryKey: true
     },
     userid: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         references: {
             model: 'users',
             key: 'id'
