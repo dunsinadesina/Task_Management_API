@@ -7,7 +7,7 @@ const router = Router();
 router.post('/register', userRegistration);
 router.post('/login', userLogin);
 router.get('/verify-email/:emailToken', verifyEmailAddress);
-router.get('/forgot-password', forgotPassword);
+router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.delete('/logout', userLogout);
 router.get('/userprofile', getUserProfile);
