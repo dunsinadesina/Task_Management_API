@@ -9,7 +9,7 @@ import { PasswordResetToken } from '../models/resetPassword';
 import Task from '../models/taskModel';
 import User from "../models/userModel";
 import UserProfile from '../models/userProfileModel';
-import { sendVerificationMail, sendPasswordResetMail} from '../nodemailer';
+import { sendVerificationMail, sendPasswordResetMail } from '../nodemailer';
 
 //register new user
 export const userRegistration = [
@@ -67,21 +67,21 @@ export const userRegistration = [
             console.log("JWT token generated:", token);
 
             // Send verification email
-                try {
-                    sendVerificationMail(user.email, user.emailToken, user.name);
-                    console.log("Verification email sent to:", user.email);
-                    return res.status(200).json({
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        token,
-                        isVerified: user.isVerified,
-                        message: 'User successfully added and verification email sent'
-                    });
-                } catch (emailError) {
-                    console.error("Error sending verification email:", emailError);
-                    return res.status(500).json({ message: 'Error sending verification email' });
-                }
+            try {
+                sendVerificationMail(user.email, user.emailToken, user.name);
+                console.log("Verification email sent to:", user.email);
+                return res.status(200).json({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    token,
+                    isVerified: user.isVerified,
+                    message: 'User successfully added and verification email sent'
+                });
+            } catch (emailError) {
+                console.error("Error sending verification email:", emailError);
+                return res.status(500).json({ message: 'Error sending verification email' });
+            }
 
         } catch (error) {
             console.error("Server error:", error);
@@ -135,7 +135,7 @@ export const userLogin = [
                 return res.status(401).json({ message: 'Invalid email' });
             }
 
-             // Check if user's email is verified
+            // Check if user's email is verified
             if (!user.isVerified) {
                 return res.status(403).json({ message: 'Please verify your email to login' });
             }
@@ -155,12 +155,12 @@ export const userLogin = [
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
-            return res.json({ 
+            return res.json({
                 message: 'Login successful',
-                token 
+                token
             });
         } catch (error) {
-            console.error("Login error:",error);
+            console.error("Login error:", error);
             res.status(500).json({ message: 'Server error' });
         }
     }
@@ -225,9 +225,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
             const token = generateToken();
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
-            
+
             await PasswordResetToken.create({ userId: user.id, token, expiryDate });
-            
+
             try {
                 // Send the email with the link containing the token
                 await sendPasswordResetMail(email, token, user.name);
@@ -247,8 +247,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 
 export const resetPassword = async (req: Request, res: Response) => {
-    const {newPassword } = req.body;
-    const {token} = req.params;
+    const { newPassword } = req.body;
+    const { token } = req.params;
 
     try {
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
