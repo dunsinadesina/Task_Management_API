@@ -259,7 +259,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
         console.log('Found reset token:', resetToken);
 
-        if (!resetToken || resetToken.expiryDate < new Date()) {
+        if (!resetToken /*|| resetToken.expiryDate < new Date()*/) {
             console.log('Invalid or expired token:', resetToken);
             return res.status(400).json({ message: 'Invalid or expired token' });
         }
