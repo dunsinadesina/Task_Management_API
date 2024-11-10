@@ -247,7 +247,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
 
 export const resetPassword = async (req: Request, res: Response) => {
-    const token = req.params
+    const { token } = req.params; // Extract the token directly
     const { newPassword } = req.body;
 
     console.log('Received reset token:', token);
@@ -257,6 +257,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     try {
+        // Ensure that token is passed as a string in the query
         const resetToken = await PasswordResetToken.findOne({ where: { token } });
         console.log('Found reset token:', resetToken);
 
