@@ -1,5 +1,5 @@
-import dotenv from 'dotenv';
-import { Sequelize } from 'sequelize';
+import * as dotenv from 'dotenv';
+import { Dialect, Sequelize } from 'sequelize';
 import { PasswordResetToken } from '../models/resetPassword';
 import Task from '../models/taskModel';
 import User from '../models/userModel';
@@ -13,7 +13,7 @@ export const sequelize = new Sequelize(
     process.env.DB_PASSWORD as string,
     {
         host: process.env.DB_HOST,
-        dialect: 'mysql',
+        dialect: 'mysql' as Dialect,
         logging: false,
     }
 );

@@ -1,0 +1,24 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const taskController_1 = require("./controllers/taskController");
+const userController_1 = require("./controllers/userController");
+const router = (0, express_1.Router)();
+router.post('/register', userController_1.userRegistration);
+router.post('/login', userController_1.userLogin);
+router.get('/verify-email/:emailToken', userController_1.verifyEmailAddress);
+router.post('/forgot-password', userController_1.forgotPassword);
+router.post('/reset-password/:token', userController_1.resetPassword);
+router.delete('/logout', userController_1.userLogout);
+router.get('/userprofile/:id', userController_1.getUserProfile);
+router.get('/users/:id', userController_1.getUserById);
+router.get('/users', userController_1.getAllUsers);
+router.delete('/delete-account/:id', userController_1.deleteAccount);
+router.get('/users/:userId/tasks', taskController_1.getAllTasks);
+router.post('/users/:userId/tasks', taskController_1.createTask);
+router.get('/users/:userId/tasks/:id', taskController_1.getTaskById);
+router.put('/users/:userId/tasks/:id', taskController_1.updateTask);
+router.delete('/users/:userId/tasks/:id', taskController_1.deleteTask);
+router.post('/google-sign-in', userController_1.googleSignIn);
+exports.default = router;
+//# sourceMappingURL=routes.js.map
