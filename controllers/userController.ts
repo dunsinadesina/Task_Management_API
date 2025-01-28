@@ -269,7 +269,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         const user = await User.findByPk(resetToken.userId);
 
         if (!user) {
-            console.log('User not found for token:', resetToken.userId); 
+            console.log('User not found for token:', resetToken.userId);
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -277,7 +277,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         await user.save();
 
         await resetToken.destroy();
-        
+
         console.log('Password reset successful for user:', user.id);
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
@@ -306,14 +306,14 @@ export const userLogout = async (req: Request, res: Response) => {
 };
 
 export const getUserProfile = async (req: Request, res: Response) => {
-    const { userid } = req.params;
-    if (!userid) {
-        throw new Error('User ID is required');
-      }
+    const { id } = req.params;
+    if (!id) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
     try {
         const userProfile = await UserProfile.findOne({
             where: {
-                userid: userid
+                userid: id
             }
         });
         if (userProfile) {
@@ -323,8 +323,8 @@ export const getUserProfile = async (req: Request, res: Response) => {
             res.status(404).json({ error: 'User profile not found' });
         }
     } catch (error) {
-        console.log('Error creating user profile', error);
-        res.status(500).json({ error: 'Error creating user profile' });
+        console.log('Error fetching user profile', error);
+        return res.status(500).json({ error: 'Error creating user profile' });
     }
 }
 
