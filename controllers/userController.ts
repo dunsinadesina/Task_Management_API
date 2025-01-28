@@ -329,10 +329,10 @@ export const getUserProfile = async (req: Request, res: Response) => {
 }
 
 export const getUserById = async (req: Request, res: Response) => {
-    const { userId } = req.params; // Get user ID from URL parameter
+    const { id } = req.params; // Get user ID from URL parameter
     try {
-        const user = await User.findByPk(userId, {
-            attributes: ['userId', 'name', 'email']
+        const user = await User.findByPk(id, {
+            attributes: ['id', 'name', 'email']
         });
 
         if (!user) {
