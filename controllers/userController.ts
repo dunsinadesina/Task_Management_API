@@ -306,11 +306,14 @@ export const userLogout = async (req: Request, res: Response) => {
 };
 
 export const getUserProfile = async (req: Request, res: Response) => {
-    const { userId } = req.params;
+    const { userid } = req.params;
+    if (!userid) {
+        throw new Error('User ID is required');
+      }
     try {
         const userProfile = await UserProfile.findOne({
             where: {
-                userid: userId
+                userid: userid
             }
         });
         if (userProfile) {
@@ -326,10 +329,10 @@ export const getUserProfile = async (req: Request, res: Response) => {
 }
 
 export const getUserById = async (req: Request, res: Response) => {
-    const { id } = req.params; // Get user ID from URL parameter
+    const { userId } = req.params; // Get user ID from URL parameter
     try {
-        const user = await User.findByPk(id, {
-            attributes: ['id', 'name', 'email']
+        const user = await User.findByPk(userId, {
+            attributes: ['userId', 'name', 'email']
         });
 
         if (!user) {
