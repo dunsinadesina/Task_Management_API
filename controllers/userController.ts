@@ -306,11 +306,11 @@ export const userLogout = async (req: Request, res: Response) => {
 };
 
 export const getUserProfile = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { userId } = req.params;
     try {
         const userProfile = await UserProfile.findOne({
             where: {
-                userid: id
+                userid: userId
             }
         });
         if (userProfile) {
