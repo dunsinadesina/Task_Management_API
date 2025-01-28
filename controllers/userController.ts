@@ -53,6 +53,7 @@ export const userRegistration = [
                 userid: user.id,
                 isLoggedIn: false
             });
+            console.log('UserProfile created:', { name, email, userid: user.id });
 
             // Generate JWT token
             const payload = {
@@ -309,7 +310,7 @@ export const userLogout = async (req: Request, res: Response) => {
 export const getUserProfile = async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!id) {
-        console.log('UserID is required')
+        console.log(`User profile not found for ID: ${id}`);
         return res.status(400).json({ error: 'User ID is required' });
     }
     try {
