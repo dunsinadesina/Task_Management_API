@@ -31,7 +31,7 @@ UserProfile.init({
         type: DataTypes.UUID,
         references: {
             model: 'users',
-            key: 'id'
+            key: 'userId'
         },
         allowNull: true
     },
