@@ -117,7 +117,7 @@ Task.init(
     }
 );
 
-Task.belongsTo(UserProfile, { foreignKey: 'userId', as: 'user' });
-UserProfile.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
+// Task.belongsTo(UserProfile, { foreignKey: 'userId', as: 'user' });
+// UserProfile.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
 
 export default Task;
