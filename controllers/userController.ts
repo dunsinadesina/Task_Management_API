@@ -98,6 +98,7 @@ export const verifyEmailAddress = async (req: Request, res: Response) => {
         const user = await User.findOne({ where: { emailToken: emailToken } });
 
         if (!user) {
+            console.log('Invalid or expired token')
             return res.status(400).json({ message: 'Invalid or expired token' });
         }
 
@@ -308,12 +309,13 @@ export const userLogout = async (req: Request, res: Response) => {
 export const getUserProfile = async (req: Request, res: Response) => {
     const { id } = req.params;
     if (!id) {
+        console.log('UserID is required')
         return res.status(400).json({ error: 'User ID is required' });
     }
     try {
         const userProfile = await UserProfile.findOne({
             where: {
-                userid: id
+                id: id
             }
         });
         if (userProfile) {
