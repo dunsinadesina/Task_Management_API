@@ -18,6 +18,7 @@ export const createTask = async (req: Request, res: Response) => {
         } = req.body;
 
         const userId = req.params.userId;
+        console.log('User ID from params:', userId);
 
         if (!userId) {
             console.log('User id required')
