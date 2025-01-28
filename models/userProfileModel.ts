@@ -31,7 +31,7 @@ UserProfile.init({
         type: DataTypes.UUID,
         references: {
             model: 'users',
-            key: 'userId'
+            key: 'id'
         },
         allowNull: true
     },
@@ -45,13 +45,13 @@ UserProfile.init({
         unique: true
     },
     isLoggedIn: {
-        type: BOOLEAN,
+        type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
     }
 }, {
     sequelize,
-    tableName: 'userprofiles',
+    tableName: 'userProfile',
     timestamps: true
 })
 

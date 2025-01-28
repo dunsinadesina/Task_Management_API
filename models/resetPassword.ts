@@ -44,6 +44,7 @@ PasswordResetToken.init({
 }, {
     sequelize,
     modelName: 'PasswordResetToken',
+    timestamps: true
 })
 
 export { PasswordResetToken };
