@@ -7,7 +7,8 @@ import UserProfile from "../models/userProfileModel";
 
 export const createTask = async (req: Request, res: Response) => {
     try {
-        const { title,
+        const {
+            title,
             description,
             dueDate,
             completed = false,
@@ -18,10 +19,10 @@ export const createTask = async (req: Request, res: Response) => {
             tags = []
         } = req.body;
 
-        const userId = req.params.userId;
-        console.log('User ID from params:', userId);
+        const userIdFromParams = req.params.id; // userProfile ID or user ID depending on your route setup
+        console.log('User ID from params:', userIdFromParams);
 
-        if (!userId) {
+        if (!userIdFromParams) {
             console.log('User id required')
             return res.status(400).json({ message: 'User id required' })
         }
@@ -44,13 +45,26 @@ export const createTask = async (req: Request, res: Response) => {
         if (!title || !description || !dueDate) {
             return res.status(400).json({ message: 'Title, description, and due date are required' });
         }
-        const userExists = await UserProfile.findByPk(userId);
+
+        // Fetch the userProfile to get the correct userId
+        const userProfile = await UserProfile.findOne({ where: { id: userIdFromParams } });
+        
+        if (!userProfile) {
+            console.log('User profile does not exist');
+            return res.status(404).json({ message: 'User profile does not exist' });
+        }
+
+        const userId = userProfile.userid; // Correct userId from the user profile
+        console.log('User ID retrieved from UserProfile:', userId);
+
+        // Check if the user exists
+        const userExists = await User.findByPk(userId);
         if (!userExists) {
             console.log('User does not exist');
             return res.status(404).json({ message: 'User does not exist' });
         }
 
-
+        // Create the task
         const task = await Task.create({
             title,
             description,
@@ -58,7 +72,7 @@ export const createTask = async (req: Request, res: Response) => {
             completed,
             priority,
             status,
-            userId,
+            userId, // Correct userId here
             subtasks,
             estimatedTime,
             tags

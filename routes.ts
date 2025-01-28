@@ -15,7 +15,7 @@ router.get('/users/:id', getUserById);
 router.get('/users', getAllUsers);
 router.delete('/delete-account/:id', deleteAccount);
 router.get('/users/:userId/tasks', getAllTasks);
-router.post('/users/:userId/tasks', createTask);
+router.post('/users/:id/tasks', createTask);
 router.get('/users/:userId/tasks/:id', getTaskById);
 router.put('/users/:userId/tasks/:id', updateTask);
 router.delete('/users/:userId/tasks/:id', deleteTask);
