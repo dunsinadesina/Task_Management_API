@@ -50,14 +50,14 @@ export const userRegistration = [
             await UserProfile.create({
                 name,
                 email,
-                userid: user.userId,
+                userid: user.id,
                 isLoggedIn: false
             });
 
             // Generate JWT token
             const payload = {
                 user: {
-                    id: user.userId
+                    id: user.id
                 }
             };
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
@@ -71,7 +71,7 @@ export const userRegistration = [
                 sendVerificationMail(user.email, user.emailToken, user.name);
                 console.log("Verification email sent to:", user.email);
                 return res.status(200).json({
-                    id: user.userId,
+                    id: user.id,
                     name: user.name,
                     email: user.email,
                     token,
@@ -149,7 +149,7 @@ export const userLogin = [
             // Generate JWT token
             const payload = {
                 user: {
-                    id: user.userId
+                    id: user.id
                 }
             };
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
@@ -201,7 +201,7 @@ export const googleSignIn = async (req: Request, res: Response) => {
         await UserProfile.create({
             name,
             email,
-            userid: user.userId,
+            userid: user.id,
             isLoggedIn: true
         });
 
@@ -226,7 +226,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
 
-            await PasswordResetToken.create({ userId: user.userId, token, expiryDate });
+            await PasswordResetToken.create({ userId: user.id, token, expiryDate });
 
             try {
                 // Send the email with the link containing the token
@@ -278,7 +278,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 
         await resetToken.destroy();
         
-        console.log('Password reset successful for user:', user.userId);
+        console.log('Password reset successful for user:', user.id);
         return res.status(200).json({ message: 'Password reset successful' });
     } catch (error) {
         console.error('Error during password reset:', error);
@@ -372,7 +372,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
         await Task.destroy({ where: { userId } });
 
         // Delete the user
-        await User.destroy({ where: { userId: userId } });
+        await User.destroy({ where: { id: userId } });
 
         return res.status(200).json({ message: 'Account and associated tasks deleted successfully' });
     } catch (err) {
