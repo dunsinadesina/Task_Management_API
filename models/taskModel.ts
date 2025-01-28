@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../config/config';
-import UserProfile from './userProfileModel';
+import User from './userModel';
 
 interface TaskAttributes {
     id: string;
@@ -63,7 +63,7 @@ Task.init(
             type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: UserProfile,
+                model: User,
                 key: 'id',
             },
         },
@@ -117,7 +117,7 @@ Task.init(
     }
 );
 
-// Task.belongsTo(UserProfile, { foreignKey: 'userId', as: 'user' });
-// UserProfile.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
+Task.belongsTo(User, { foreignKey: 'userId', as: 'users' });
+User.hasMany(Task, { foreignKey: 'userId', as: 'tasks' });
 
 export default Task;
