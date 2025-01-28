@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Task from "../models/taskModel";
+import User from "../models/userModel";
 import { use } from "passport";
 
 
@@ -41,6 +42,12 @@ export const createTask = async (req: Request, res: Response) => {
         if (!title || !description || !dueDate) {
             return res.status(400).json({ message: 'Title, description, and due date are required' });
         }
+        const userExists = await User.findByPk(userId);
+        if (!userExists) {
+            console.log('User does not exist');
+            return res.status(404).json({ message: 'User does not exist' });
+        }
+
 
         const task = await Task.create({
             title,
