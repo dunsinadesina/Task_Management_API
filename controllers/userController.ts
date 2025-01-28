@@ -46,15 +46,6 @@ export const userRegistration = [
                 isVerified: false
             });
 
-            // Create user profile
-            await UserProfile.create({
-                name,
-                email,
-                userid: user.id,
-                isLoggedIn: false
-            });
-            console.log('UserProfile created:', { name, email, userid: user.id });
-
             // Generate JWT token
             const payload = {
                 user: {
@@ -64,6 +55,17 @@ export const userRegistration = [
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
+
+
+            // Create user profile
+            await UserProfile.create({
+                name,
+                email,
+                userid: user.id,
+                isLoggedIn: false
+            });
+            console.log('UserProfile created:', { name, email, userid: user.id });
+
 
             console.log("JWT token generated:", token);
 
@@ -200,12 +202,13 @@ export const googleSignIn = async (req: Request, res: Response) => {
         });
 
         // Create user profile
-        await UserProfile.create({
+        const userProfile = await UserProfile.create({
             name,
             email,
             userid: user.id,
-            isLoggedIn: true
+            isLoggedIn: false
         });
+        console.log('User profile created:', userProfile);
 
         return res.status(201).json({ message: 'User created successfully via Google sign-in', user });
 
@@ -316,7 +319,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
     try {
         const userProfile = await UserProfile.findOne({
             where: {
-                id: id
+                userid: id
             }
         });
         if (userProfile) {
