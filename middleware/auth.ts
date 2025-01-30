@@ -20,5 +20,22 @@ const auth = (req: AuthRequest, res: Response, next: NextFunction)=>{
     }
 }
 
+export const authenticateUser = (req: Request, res: Response, next: NextFunction)=>{
+    const token = req.cookies.token //get token from HTTP cookies
+
+    if (!token){
+        console.error('Unauthorized: No token provided')
+        return res.status(401).json({message: 'Unauthorized: No token provided'})
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        (req as any).user = decoded //attach user to request object
+        next();
+    } catch (error) {
+        console.error('Invalid or expired token')
+        return res.status(500).json({message: 'Invalid or expired token'})
+    }
+}
 
 export default auth;

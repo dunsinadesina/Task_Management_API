@@ -4,6 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import { connectDB } from './config/config';
 import router from './routes';
+import cookieParser from 'cookie-parser';
 
 const sequelize = connectDB();
 
@@ -22,6 +23,7 @@ declare global {
 app.use(session({ secret: 'maybe_token', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
 
 app.get('/', (req: Request, res: Response) => {
     res.send('<a href="/auth/google">Login with Google</a>');

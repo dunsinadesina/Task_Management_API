@@ -305,6 +305,19 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 };
 
+export const checkAuth = (req: Request, res: Response) => {
+    try {
+        const token = req.cookies.token; // Get token from HTTP-only cookie
+        if (!token) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+        return res.json({ message: 'Authenticated', user: decoded });
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+};
 
 export const userLogout = async (req: Request, res: Response) => {
 
