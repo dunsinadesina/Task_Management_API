@@ -29,7 +29,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
- app.use(cookieParser());
+
 
 app.get('/', (req: Request, res: Response) => {
     res.send('<a href="/auth/google">Login with Google</a>');
@@ -72,22 +72,21 @@ app.get('/auth/google/failure', (req: Request, res: Response) => {
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-app.use(cors({
-    origin: `${process.env.FRONTEND_URL}`,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Handle OPTIONS requests
-app.options('*', (req: Request, res: Response) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://taskify-lac-beta.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    res.status(204).end(); // Respond with 204 No Content
-});
-
+app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log('Before Body Parsers:', req.body);  // Should be empty or undefined here
+    next();
+});
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log('After Body Parsers:', req.body);  // Should have the body data here
+    next();
+});
+
 
 app.use(router);
 
