@@ -50,12 +50,12 @@ app.get('/auth/google/callback',
     })
 );
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(`Incoming Request: ${req.method} ${req.url}`);
-    console.log('Request Headers:', req.headers);
-    console.log('Request Body:', req.body);
-    next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//     console.log(`Incoming Request: ${req.method} ${req.url}`);
+//     console.log('Request Headers:', req.headers);
+//     console.log('Request Body:', req.body);
+//     next();
+// });
 
 // app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 //     console.error('Error occurred:', err);
@@ -77,15 +77,15 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log('Before Body Parsers:', req.body);  // Should be empty or undefined here
-    next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//     console.log('Before Body Parsers:', req.body);  // Should be empty or undefined here
+//     next();
+// });
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log('After Body Parsers:', req.body);  // Should have the body data here
-    next();
-});
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//     console.log('After Body Parsers:', req.body);  // Should have the body data here
+//     next();
+// });
 
 
 app.use(router);
