@@ -74,9 +74,18 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.use(cors({
     origin: `${process.env.FRONTEND_URL}`,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle OPTIONS requests
+app.options('*', (req: Request, res: Response) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://taskify-lac-beta.vercel.app');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+    res.status(204).end(); // Respond with 204 No Content
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -87,10 +96,10 @@ app.get('/welcome', (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(err.stack);
-    res.status(500).send("There's something wrong...");
-});
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//     console.error(err.stack);
+//     res.status(500).send("There's something wrong...");
+// });
 
 // Start the server
 const PORT = 3000;
