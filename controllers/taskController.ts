@@ -167,10 +167,10 @@ export const updateTask = async (req: Request, res: Response) => {
 
 export const deleteTask = async (req: Request, res: Response) => {
     try {
-        const { userId, taskId } = req.params;
+        const { userId, id } = req.params;
         const task = await Task.findOne({
             where: {
-                id: taskId,
+                id: id,
                 userId
             }
         })
