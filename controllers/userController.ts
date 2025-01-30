@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
 import { v4 as uuidv4 } from 'uuid';
 import { adminAuth } from '../firebase';
 import { PasswordResetToken } from '../models/resetPassword';
@@ -10,6 +12,7 @@ import Task from '../models/taskModel';
 import User from "../models/userModel";
 import UserProfile from '../models/userProfileModel';
 import { sendVerificationMail, sendPasswordResetMail } from '../nodemailer';
+import { where } from 'sequelize';
 
 //register new user
 export const userRegistration = [
@@ -128,56 +131,54 @@ export const verifyEmailAddress = async (req: Request, res: Response) => {
 // }
 
 //Login user
-export const userLogin = [
-    async (req: Request, res: Response) => {
+// Define the local strategy
+passport.use(new LocalStrategy(
+    {
+        usernameField: 'email', // The field that Passport will expect for the username (email in this case)
+        passwordField: 'password' // The field for the password
+    },
+    async (email, password, done) => {
         try {
-            const { email, password } = req.body;
-            const user = await User.findOne({ where: { email } })
+            const user = await User.findOne({ where: { email } });
 
-            // Check if user exists
             if (!user) {
-                return res.status(401).json({ message: 'Invalid email' });
+                return done(null, false, { message: 'Invalid credentials' });
             }
 
-            // Check if user's email is verified
-            if (!user.isVerified) {
-                console.error('Please verify your email to login')
-                return res.status(403).json({ message: 'Please verify your email to login' });
+            // Check if the password matches
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return done(null, false, { message: 'Invalid credentials' });
             }
 
-            // Check if password is correct
-            const passwordMatch = await bcrypt.compare(password, user.password);
-            if (!passwordMatch) {
-                return res.status(400).json({ message: 'Invalid password' });
-            }
-
-            // Generate JWT token
-            const payload = {
-                user: {
-                    id: user.id
-                }
-            };
-
-            const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
-                expiresIn: '1h'
-            });
-
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: 7 * 24 * 60 * 60 * 1000//a week
-            });
-
-            return res.json({
-                message: 'Login successful'
-            });
-
-        } catch (error) {
-            console.error("Login error:", error);
-            res.status(500).json({ message: 'Server error' });
+            // Return the user if authentication is successful
+            return done(null, user);
+        } catch (err) {
+            return done(err);
         }
     }
+));
+
+// Serialize and deserialize user for session persistence
+passport.serializeUser((user: any, done) => {
+    done(null, user.id); // Store user ID in the session
+});
+
+passport.deserializeUser(async (id, done) => {
+    try {
+        const userId = id as string;
+        const user = await User.findByPk(userId);
+        done(null, user);
+    } catch (err) {
+        done(err);
+    }
+});
+export const userLogin = [
+    passport.authenticate('local', {
+        successRedirect: '/home',  // Redirect to the home page or dashboard after successful login
+        failureRedirect: '/login', // Redirect to login page if authentication fails
+        //failureFlash: true,        // Optional: to show failure messages (requires 'connect-flash' middleware)
+    })
 ];
 
 export const googleSignIn = async (req: Request, res: Response) => {

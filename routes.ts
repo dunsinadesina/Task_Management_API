@@ -7,11 +7,7 @@ import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile
 const router = Router();
 
 router.post('/register', userRegistration);
-router.post('/login', passport.authenticate('local', {
-    successRedirect: '/home',  // Redirect to the home page or dashboard after successful login
-    failureRedirect: '/login', // Redirect to login page if authentication fails
-    failureFlash: true,        // Optional: to show failure messages (requires 'connect-flash' middleware)
-})), userLogin;
+router.post('/login', userLogin);
 router.get('/verify-email/:emailToken', verifyEmailAddress);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:token', resetPassword);
