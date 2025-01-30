@@ -35,6 +35,10 @@ app.get('/', (req: Request, res: Response) => {
     res.send('<a href="/auth/google">Login with Google</a>');
 });
 
+app.get('/home', (req: Request, res: Response) => {
+    res.send(`${process.env.FRONTEND_URL}/dashboard`);
+});
+
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['email', 'profile'] })
 );
