@@ -50,6 +50,18 @@ app.get('/auth/google/callback',
     })
 );
 
+app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log(`Incoming Request: ${req.method} ${req.url}`);
+    console.log('Request Headers:', req.headers);
+    console.log('Request Body:', req.body);
+    next();
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error('Error occurred:', err);
+    res.status(500).json({ message: 'Internal Server Error', error: err.message });
+});
+
 app.get('/protected', (req: Request, res: Response) => {
     res.send(`Hello ${req.user?.name}`);
 });

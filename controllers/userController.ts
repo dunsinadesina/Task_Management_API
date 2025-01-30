@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { check, validationResult } from "express-validator";
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
@@ -173,13 +173,41 @@ passport.deserializeUser(async (id, done) => {
         done(err);
     }
 });
-export const userLogin = [
-    passport.authenticate('local', {
-        successRedirect: '/home',  // Redirect to the home page or dashboard after successful login
-        failureRedirect: '/login', // Redirect to login page if authentication fails
-        //failureFlash: true,        // Optional: to show failure messages (requires 'connect-flash' middleware)
-    })
-];
+export const userLogin = (req: Request, res: Response, next: NextFunction) => {
+    // Log the incoming login request body
+    console.log('Login Request Body:', req.body);
+
+    // Use Passport's local strategy to authenticate the user
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+        if (err) {
+            // Handle errors from passport authentication
+            console.error('Authentication Error:', err);
+            return res.status(500).json({ message: 'Server Error', error: err.message });
+        }
+
+        if (!user) {
+            // If no user is found, handle failed authentication
+            console.log('Authentication Failed:', info);
+            return res.status(401).json({ message: 'Authentication failed', info });
+        }
+
+        // If authentication is successful, log the user and send a response
+        console.log('User authenticated:', user);
+
+        // Here, you can log the user in and proceed with your logic (e.g., create a session)
+        req.login(user, (err) => {
+            if (err) {
+                console.error('Login Error:', err);
+                return res.status(500).json({ message: 'Login Error', error: err.message });
+            }
+
+            // Successful login, respond with user data or session info
+            res.status(200).json(user);  // Or send appropriate success response
+        });
+    })(req, res, next);
+};
+
+
 
 export const googleSignIn = async (req: Request, res: Response) => {
     const { idToken } = req.body;
