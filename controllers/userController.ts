@@ -130,17 +130,22 @@ export const verifyEmailAddress = async (req: Request, res: Response) => {
 //Login user
 export const userLogin = [
     async (req: Request, res: Response) => {
-        const { email, password } = req.body;
-
         try {
+            const { email, password } = req.body;
+            const user = await User.findOne({ where: { email } })
+            if (!user) {
+                console.error('Invalid error')
+                return res.status(401).json({ message: 'Invalid email' })
+            }
+
             // Check if user exists
-            const user = await User.findOne({ where: { email } });
             if (!user) {
                 return res.status(401).json({ message: 'Invalid email' });
             }
 
             // Check if user's email is verified
             if (!user.isVerified) {
+                console.error('Please verify your email to login')
                 return res.status(403).json({ message: 'Please verify your email to login' });
             }
 
@@ -156,13 +161,22 @@ export const userLogin = [
                     id: user.id
                 }
             };
+
             const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                 expiresIn: '1h'
             });
-            return res.json({
-                message: 'Login successful',
-                token
+
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000//a week
             });
+
+            return res.json({
+                message: 'Login successful'
+            });
+
         } catch (error) {
             console.error("Login error:", error);
             res.status(500).json({ message: 'Server error' });
@@ -293,13 +307,16 @@ export const resetPassword = async (req: Request, res: Response) => {
 
 
 export const userLogout = async (req: Request, res: Response) => {
-    const { email } = req.body;
+
     try {
+        const { email } = req.body;
         // Update isLoggedIn field to false
         const userProfile = await UserProfile.findOne({ where: { email } });
         if (userProfile) {
             await userProfile.update({ isLoggedIn: false });
             res.redirect(`${process.env.FRONTEND_URL}/homepage`);
+            //clear the cookie
+            res.clearCookie('token');
             return res.status(200).json({ message: 'Logout successful' });
         } else {
             return res.status(404).json({ error: 'User not found' });
