@@ -133,10 +133,6 @@ export const userLogin = [
         try {
             const { email, password } = req.body;
             const user = await User.findOne({ where: { email } })
-            if (!user) {
-                console.error('Invalid error')
-                return res.status(401).json({ message: 'Invalid email' })
-            }
 
             // Check if user exists
             if (!user) {
