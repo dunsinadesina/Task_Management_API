@@ -57,10 +57,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Error occurred:', err);
-    res.status(500).json({ message: 'Internal Server Error', error: err.message });
-});
+// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+//     console.error('Error occurred:', err);
+//     res.status(500).json({ message: 'Internal Server Error', error: err.message });
+// });
 
 app.get('/protected', (req: Request, res: Response) => {
     res.send(`Hello ${req.user?.name}`);
