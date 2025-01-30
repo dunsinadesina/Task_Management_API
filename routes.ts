@@ -1,6 +1,4 @@
 import { Router} from 'express';
-import { authenticateUser } from './middleware/auth';
-import passport from 'passport';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from './controllers/taskController';
 import { deleteAccount, forgotPassword, getAllUsers, getUserById, getUserProfile, googleSignIn, resetPassword, userLogin, userLogout, userRegistration, verifyEmailAddress } from './controllers/userController';
 

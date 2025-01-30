@@ -1,10 +1,8 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import jwt from 'jsonwebtoken';
-import passport from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
 import { v4 as uuidv4 } from 'uuid';
 import { adminAuth } from '../firebase';
 import { PasswordResetToken } from '../models/resetPassword';
@@ -12,7 +10,6 @@ import Task from '../models/taskModel';
 import User from "../models/userModel";
 import UserProfile from '../models/userProfileModel';
 import { sendVerificationMail, sendPasswordResetMail } from '../nodemailer';
-import { where } from 'sequelize';
 
 //register new user
 export const userRegistration = [
@@ -131,83 +128,47 @@ export const verifyEmailAddress = async (req: Request, res: Response) => {
 // }
 
 //Login user
-// Define the local strategy
-passport.use(new LocalStrategy(
-    {
-        usernameField: 'email', // The field that Passport will expect for the username (email in this case)
-        passwordField: 'password' // The field for the password
-    },
-    async (email, password, done) => {
+export const userLogin = [
+    async (req: Request, res: Response) => {
+        const { email, password } = req.body;
+
         try {
+            // Check if user exists
             const user = await User.findOne({ where: { email } });
-
             if (!user) {
-                return done(null, false, { message: 'Invalid credentials' });
+                return res.status(401).json({ message: 'Invalid email' });
             }
 
-            // Check if the password matches
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return done(null, false, { message: 'Invalid credentials' });
+            // Check if user's email is verified
+            if (!user.isVerified) {
+                return res.status(403).json({ message: 'Please verify your email to login' });
             }
 
-            // Return the user if authentication is successful
-            return done(null, user);
-        } catch (err) {
-            return done(err);
+            // Check if password is correct
+            const passwordMatch = await bcrypt.compare(password, user.password);
+            if (!passwordMatch) {
+                return res.status(400).json({ message: 'Invalid password' });
+            }
+
+            // Generate JWT token
+            const payload = {
+                user: {
+                    id: user.id
+                }
+            };
+            const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
+                expiresIn: '1h'
+            });
+            return res.json({
+                message: 'Login successful',
+                token
+            });
+        } catch (error) {
+            console.error("Login error:", error);
+            res.status(500).json({ message: 'Server error' });
         }
     }
-));
-
-// Serialize and deserialize user for session persistence
-passport.serializeUser((user: any, done) => {
-    done(null, user.id); // Store user ID in the session
-});
-
-passport.deserializeUser(async (id, done) => {
-    try {
-        const userId = id as string;
-        const user = await User.findByPk(userId);
-        done(null, user);
-    } catch (err) {
-        done(err);
-    }
-});
-export const userLogin = (req: Request, res: Response, next: NextFunction) => {
-    // Log the incoming login request body
-    console.log('Login Request Body:', req.body);
-
-    // Use Passport's local strategy to authenticate the user
-    passport.authenticate('local', (err: any, user: any, info: any) => {
-        if (err) {
-            // Handle errors from passport authentication
-            console.error('Authentication Error:', err);
-            return res.status(500).json({ message: 'Server Error', error: err.message });
-        }
-
-        if (!user) {
-            // If no user is found, handle failed authentication
-            console.log('Authentication Failed:', info);
-            return res.status(401).json({ message: 'Authentication failed', info });
-        }
-
-        // If authentication is successful, log the user and send a response
-        console.log('User authenticated:', user);
-
-        // Here, you can log the user in and proceed with your logic (e.g., create a session)
-        req.login(user, (err) => {
-            if (err) {
-                console.error('Login Error:', err);
-                return res.status(500).json({ message: 'Login Error', error: err.message });
-            }
-
-            // Successful login, respond with user data or session info
-            res.status(200).json(user);  // Or send appropriate success response
-        });
-    })(req, res, next);
-};
-
-
+];
 
 export const googleSignIn = async (req: Request, res: Response) => {
     const { idToken } = req.body;
@@ -330,31 +291,15 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 };
 
-export const checkAuth = (req: Request, res: Response) => {
-    try {
-        const token = req.cookies.token; // Get token from HTTP-only cookie
-        if (!token) {
-            return res.status(401).json({ message: 'Not authenticated' });
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-        return res.json({ message: 'Authenticated', user: decoded });
-    } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
-    }
-};
 
 export const userLogout = async (req: Request, res: Response) => {
-
+    const { email } = req.body;
     try {
-        const { email } = req.body;
         // Update isLoggedIn field to false
         const userProfile = await UserProfile.findOne({ where: { email } });
         if (userProfile) {
             await userProfile.update({ isLoggedIn: false });
             res.redirect(`${process.env.FRONTEND_URL}/homepage`);
-            //clear the cookie
-            res.clearCookie('token');
             return res.status(200).json({ message: 'Logout successful' });
         } else {
             return res.status(404).json({ error: 'User not found' });
