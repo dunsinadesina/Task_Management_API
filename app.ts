@@ -60,7 +60,11 @@ app.get('/auth/google/failure', (req: Request, res: Response) => {
 
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-app.use(cors());
+app.use(cors({
+    origin: `${process.env.FRONTEND_URL}`,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
