@@ -17,7 +17,7 @@ router.delete('/delete-account/:id', deleteAccount);
 router.get('/users/:userId/tasks', getAllTasks);
 router.post('/users/:id/tasks', createTask);
 router.get('/users/:userId/tasks/:id', getTaskById);
-router.put('/users/:userId/tasks/:id', updateTask);
+router.patch('/users/:userId/tasks/:id', updateTask);
 router.delete('/users/:userId/tasks/:id', deleteTask);
 router.post('/google-sign-in', googleSignIn);
 
