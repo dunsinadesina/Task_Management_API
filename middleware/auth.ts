@@ -21,6 +21,7 @@ const auth = (req: AuthRequest, res: Response, next: NextFunction)=>{
 }
 
 export const authenticateUser = (req: Request, res: Response, next: NextFunction)=>{
+    console.log('User authenticated:', req.isAuthenticated());
     if (req.isAuthenticated()) {
         return next(); // User is authenticated, proceed to the next handler
     }
